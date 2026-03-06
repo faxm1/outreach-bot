@@ -31,35 +31,13 @@ STRICT RULES:
     Do NOT write phrases like "aligning with your requirements" or "crucial for your role" unless a real job posting was provided."""
 
 FALLBACK = {
-    "subject": "Cybersecurity Co-op – SOC / Blue Team",
-    "body": (
-        "Hello Team,\n\n"
-        "I’m a final-semester Information Technology student (Cybersecurity track) at Majmaah University, "
-        "graduating in 2026, seeking a Cybersecurity Co-op opportunity in SOC or Blue Team operations.\n\n"
-        "My foundation includes networking fundamentals (TCP/IP, OSI), basic network scanning with Nmap, and "
-        "traffic analysis with Wireshark, with a clear focus on monitoring, alert triage, and incident "
-        "documentation. I completed Tuwaiq Academy’s “Cybersecurity Fundamentals and Defensive Technologies” and "
-        "relevant network security coursework from IBM and Google, and I’m actively strengthening my "
-        "practical SOC-ready skills through hands-on learning.\n\n"
-        "I bring strong ownership, discipline, and a growth mindset, and I aim to create measurable impact wherever "
-        "I work. I’m comfortable learning quickly, adapting to team standards, and supporting security operations "
-        "with accuracy, clear communication, and consistent execution.\n\n"
-        "My CV is attached for your review, and I would welcome the opportunity to be considered for any suitable "
-        "Co-op openings. Thank you for your time. I look forward to hearing from you.\n\n"
-        "Faisal Mohammed Alhamad\n"
-        "+966 580 509 593\n"
-        "faisalmhofiicial@gmail.com"
+    
     )
 }
 
 
 CV_TEXT = (
-    "Final-semester Information Technology student (Cybersecurity track), Majmaah University, graduating 2026. "
-    "Skills: TCP/IP, OSI model, Nmap (network scanning), Wireshark (traffic analysis), SIEM fundamentals, "
-    "log analysis, alert triage, incident documentation, basic incident response. "
-    "Certifications: Tuwaiq Academy 'Cybersecurity Fundamentals and Defensive Technologies'; "
-    "IBM and Google network security coursework. "
-    "Focus: SOC/Blue Team operations, threat monitoring, security event analysis."
+    
 )
 
 SYSTEM_PROMPT_JOB = """You are a professional email writer specializing in cybersecurity job applications.
