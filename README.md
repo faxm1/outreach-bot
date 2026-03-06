@@ -349,7 +349,7 @@ MIT License — use it, modify it, share it freely.
 
 <div align="center">
 
-Built by [Faisal Alhamad](https://github.com/faisalalhamad) · Cybersecurity Student · Majmaah University
+Built by [Faisal Alhamad](https://github.com/faxm1) · Cybersecurity Student · Majmaah University
 
 *If this helped your job search, give it a ⭐*
 
