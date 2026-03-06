@@ -1,0 +1,15 @@
+.env
+*.db
+*.sqlite
+*.log
+bot.lock
+__pycache__/
+*.py[cod]
+*.pyo
+venv/
+.venv/
+env/
+*.pdf
+/cvs/
+.DS_Store
+Thumbs.db
