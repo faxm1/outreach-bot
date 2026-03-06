@@ -1,5 +1,5 @@
 <div align="center">
-
+Code review branch for CodeRabbit.
 # 📧 OutreachBot
 
 **A self-hosted Telegram bot that writes and sends professional cybersecurity internship/co-op application emails — powered by local AI. No cloud. No subscriptions. Your data never leaves your machine.**
