@@ -156,9 +156,25 @@ SMTP_USER=you@gmail.com
 SMTP_PASS=xxxx xxxx xxxx xxxx
 ```
 
-Every setting is explained in `.env.example`.
+ Every setting is explained in `.env.example`.
+### 7. Get a Gmail App Password
+    Gmail does not accept your regular account password for SMTP sending. You need a separate App Password.
+    Prerequisite: 2-Step Verification must be enabled first.
+    Steps:
+    1- Go to myaccount.google.com
+    2- Select Security from the left menu
+    3- Under How you sign in to Google, click 2-Step Verification and enable it
+    4- After enabling, go back to Security and search for App Passwords in the same section
+    5- Click it — it may ask you to confirm your password
+    6- In the name field type: OutreachBot
+    7- Click Create
+    8- A 16-character code will appear — copy it immediately
+    9- Add it to your .env like this:
+    SMTP_PASS=xxxx xxxx xxxx xxxx
+    ⚠️ This code is shown only once. If you close the window without copying it, you will need to generate a new one.
+    ⚠️ This is not your Gmail password. Never use your real Gmail password here.
 
-### 7. Run the bot
+### 8. Run the bot
 
 ```bash
 python bot.py
