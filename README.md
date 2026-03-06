@@ -26,13 +26,13 @@ Everything is logged. Nothing gets sent without your approval. Ever.
 ## How It Works
 
 ```
-You → Telegram:  hr@company.com
+You → Bot:  hr@company.com
 
-Bot → Telegram:  📋 Do you have a job posting? Send URL, paste text, or reply SKIP.
+Bot → You:  📋 Do you have a job posting? Send URL, paste text, or reply SKIP.
 
-You → Telegram:  [paste job requirements]
+You → Bot:  [paste job requirements]
 
-Bot → Telegram:  📧 DRAFT PREVIEW
+Bot → You:  📧 DRAFT PREVIEW
                  To: hr@company.com
                  Subject: SOC Co-op Application – Cybersecurity Student, CV Attached
                  ─────────────────────
@@ -40,9 +40,9 @@ Bot → Telegram:  📧 DRAFT PREVIEW
                  ─────────────────────
                  Reply YES to send · NO to cancel
 
-You → Telegram:  YES
+You → Bot:  YES
 
-Bot → Telegram:  ✅ Sent at 09:14 (Riyadh) · hr@company.com
+Bot → You:  ✅ Sent at 09:14 (Riyadh) · hr@company.com
 ```
 
 That's the entire user experience.
@@ -89,7 +89,7 @@ That's the entire user experience.
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/faisalalhamad/outreach-bot.git
+git clone https://github.com/faxm1/outreach-bot.git
 cd outreach-bot
 ```
 
