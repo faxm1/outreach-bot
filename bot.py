@@ -1,54 +1,95 @@
 # bot.py
 import asyncio
-import sys
+import atexit
 import logging
 import os
-import atexit
+import sys
 
-if sys.platform == "win32":
+if sys.platform == 'win32':
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 from dotenv import load_dotenv
+
 load_dotenv()
 
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    format='%(asctime)s [%(levelname)s] %(name)s: %(message)s',
     handlers=[
         logging.StreamHandler(),
-        logging.FileHandler("outreach.log")
-    ]
+        logging.FileHandler('outreach.log'),
+    ],
 )
-logging.getLogger("aiosqlite").setLevel(logging.WARNING)
-logging.getLogger("httpx").setLevel(logging.WARNING)
+logging.getLogger('aiosqlite').setLevel(logging.WARNING)
+logging.getLogger('httpx').setLevel(logging.WARNING)
 
-from telegram.ext import ApplicationBuilder, MessageHandler, CommandHandler, filters
+from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters
 
 import db
+import ollama_client
 from config import TELEGRAM_TOKEN
-from handlers import (handle_message, handle_status_command,
-                      handle_suppress_command)
+from handlers import handle_message, handle_status_command, handle_suppress_command
+from ollama_client import load_cv_text
 from scheduler import scheduler_loop
 
-# Module-level reference — prevents garbage collection of the scheduler task
 _scheduler_task = None
+_LOCK_FILE = 'bot.lock'
 
-# ─── Lock file: prevent two instances running at once ─────────────────────────
-_LOCK_FILE = "bot.lock"
-if os.path.exists(_LOCK_FILE):
-    print("ERROR: bot.py is already running. Kill the existing process first.")
-    print("Run:  Get-Process python | Stop-Process -Force")
-    sys.exit(1)
-open(_LOCK_FILE, "w").write(str(os.getpid()))
-atexit.register(lambda: os.path.exists(_LOCK_FILE) and os.remove(_LOCK_FILE))
+
+def _pid_is_running(pid: int) -> bool:
+    try:
+        os.kill(pid, 0)
+    except OSError:
+        return False
+    return True
+
+
+def _acquire_lock() -> None:
+    if os.path.exists(_LOCK_FILE):
+        try:
+            existing_pid = int(open(_LOCK_FILE, 'r', encoding='utf-8').read().strip())
+        except Exception:
+            existing_pid = None
+
+        if existing_pid and _pid_is_running(existing_pid):
+            print('ERROR: bot.py is already running. Kill the existing process first.')
+            sys.exit(1)
+
+        try:
+            os.remove(_LOCK_FILE)
+        except OSError:
+            print('ERROR: stale bot.lock exists and could not be removed.')
+            sys.exit(1)
+
+    with open(_LOCK_FILE, 'w', encoding='utf-8') as fh:
+        fh.write(str(os.getpid()))
+
+
+def _cleanup_lock() -> None:
+    if os.path.exists(_LOCK_FILE):
+        try:
+            os.remove(_LOCK_FILE)
+        except OSError:
+            pass
+
+
+_acquire_lock()
+atexit.register(_cleanup_lock)
 
 
 async def post_init(app):
     global _scheduler_task
     await db.init_db()
-    logging.info("Database initialized")
-    _scheduler_task = asyncio.ensure_future(scheduler_loop(app))
-    logging.info("Scheduler loop started")
+    logging.info('Database initialized')
+
+    ollama_client.CV_TEXT = load_cv_text()
+    if ollama_client.CV_TEXT:
+        logging.info('CV loaded and ready')
+    else:
+        logging.warning('CV could not be loaded — job-posting personalization may fall back')
+
+    _scheduler_task = asyncio.create_task(scheduler_loop(app))
+    logging.info('Scheduler loop started')
 
 
 async def post_shutdown(app):
@@ -59,7 +100,7 @@ async def post_shutdown(app):
             await _scheduler_task
         except asyncio.CancelledError:
             pass
-    logging.info("Scheduler loop stopped")
+    logging.info('Scheduler loop stopped')
 
 
 def main():
@@ -71,16 +112,13 @@ def main():
         .build()
     )
 
-    # Plain text: email addresses, YES, NO
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+    app.add_handler(CommandHandler('status', handle_status_command))
+    app.add_handler(CommandHandler('suppress', handle_suppress_command))
 
-    # Slash commands
-    app.add_handler(CommandHandler("status",   handle_status_command))
-    app.add_handler(CommandHandler("suppress", handle_suppress_command))
-
-    logging.info("Bot started, polling Telegram...")
+    logging.info('Bot started, polling Telegram...')
     app.run_polling(drop_pending_updates=True)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
