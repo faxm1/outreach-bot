@@ -78,14 +78,19 @@ async def process_due_sends(app):
             continue
 
         try:
-            send_email(
-                recipient=email,
-                subject=row['generated_subject'],
-                body=row['generated_body'],
-                cv_path=CV_PATH,
-                cv_filename=row['cv_filename'],
-                sender_name=SENDER_NAME,
-                sender_email=SENDER_EMAIL,
+            loop = asyncio.get_event_loop()
+            await loop.run_in_executor(
+                None,
+                functools.partial(
+                    send_email,
+                    recipient=email,
+                    subject=row['generated_subject'],
+                    body=row['generated_body'],
+                    cv_path=CV_PATH,
+                    cv_filename=row['cv_filename'],
+                    sender_name=SENDER_NAME,
+                    sender_email=SENDER_EMAIL,
+                )
             )
             await db.record_attempt(request_id, 'success')
             await db.record_successful_send(request_id, email)

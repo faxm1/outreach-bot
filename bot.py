@@ -47,7 +47,8 @@ def _pid_is_running(pid: int) -> bool:
 def _acquire_lock() -> None:
     if os.path.exists(_LOCK_FILE):
         try:
-            existing_pid = int(open(_LOCK_FILE, 'r', encoding='utf-8').read().strip())
+            with open(_LOCK_FILE, 'r', encoding='utf-8') as f:
+                existing_pid = int(f.read().strip())
         except Exception:
             existing_pid = None
 
