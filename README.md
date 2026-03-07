@@ -52,7 +52,7 @@ That's the entire user experience.
 ## Features
 
 ### Core
-- **Local AI generation** — uses Ollama (qwen2.5:7b) to write professional emails on your machine
+- **Local AI generation** — uses Ollama (huihui_ai/deepseek-r1-abliterated:14b) to write professional emails on your machine
 - **Job posting input** — paste a URL or raw text; the bot generates a tailored email matching the actual requirements
 - **Mandatory approval gate** — every email requires your explicit YES before it sends
 - **Send window enforcement** — only sends between 08:00–18:00 in your timezone; confirmed emails outside the window queue automatically
@@ -82,7 +82,7 @@ That's the entire user experience.
 |---|---|---|
 | Python | 3.10+ | 3.13 recommended |
 | Ollama | Latest | [ollama.ai](https://ollama.ai) |
-| RAM | 6 GB free | For qwen2.5:7b model |
+| RAM | depends on the model you choose; larger models require significantly more memory |
 | Telegram account | — | To create a bot |
 | Gmail account | — | For SMTP sending |
 
@@ -112,13 +112,13 @@ pip install -r requirements.txt
 Download Ollama from [ollama.ai](https://ollama.ai), then:
 
 ```bash
-ollama pull qwen2.5:7b
+ollama pull huihui_ai/deepseek-r1-abliterated:14b
 ```
 
 Verify it's ready:
 ```bash
 ollama list
-# Should show: qwen2.5:7b
+# Should show: huihui_ai/deepseek-r1-abliterated:14b
 ```
 
 ### 4. Create your Telegram bot
@@ -157,24 +157,8 @@ SMTP_PASS=xxxx xxxx xxxx xxxx
 ```
 
  Every setting is explained in `.env.example`.
-### 7. Get a Gmail App Password
-    Gmail does not accept your regular account password for SMTP sending. You need a separate App Password.
-    Prerequisite: 2-Step Verification must be enabled first.
-    Steps:
-    1- Go to myaccount.google.com
-    2- Select Security from the left menu
-    3- Under How you sign in to Google, click 2-Step Verification and enable it
-    4- After enabling, go back to Security and search for App Passwords in the same section
-    5- Click it — it may ask you to confirm your password
-    6- In the name field type: OutreachBot
-    7- Click Create
-    8- A 16-character code will appear — copy it immediately
-    9- Add it to your .env like this:
-    SMTP_PASS=xxxx xxxx xxxx xxxx
-    ⚠️ This code is shown only once. If you close the window without copying it, you will need to generate a new one.
-    ⚠️ This is not your Gmail password. Never use your real Gmail password here.
 
-### 8. Run the bot
+### 7. Run the bot
 
 ```bash
 python bot.py
@@ -213,7 +197,7 @@ All settings live in `.env`. Full documentation in `.env.example`.
 | `SMTP_USER` | — | SMTP username |
 | `SMTP_PASS` | — | Gmail App Password |
 | `OLLAMA_BASE_URL` | `http://127.0.0.1:11434` | Ollama API URL |
-| `OLLAMA_MODEL` | `qwen2.5:7b` | Model to use |
+| `OLLAMA_MODEL` | `huihui_ai/deepseek-r1-abliterated:14b` | Model to use |
 | `DB_PATH` | `outreach.db` | SQLite database path |
 | `SEND_TIMEZONE` | `Asia/Riyadh` | Your timezone |
 | `SEND_WINDOW_START` | `8` | Send window start hour |
@@ -307,10 +291,10 @@ python -c "import config"
 ollama list
 
 # Is the model downloaded?
-ollama pull qwen2.5:7b
+ollama pull huihui_ai/deepseek-r1-abliterated:14b
 
 # Test it directly
-ollama run qwen2.5:7b "Reply with only: {\"test\": \"ok\"}"
+ollama run huihui_ai/deepseek-r1-abliterated:14b "Reply with only: {\"test\": \"ok\"}"
 ```
 
 **Gmail SMTP authentication fails**
