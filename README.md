@@ -2,7 +2,7 @@
 
 # 📧 OutreachBot
 
-**A self-hosted Telegram bot that writes and sends professional cybersecurity internship/co-op application emails — powered by local AI. No cloud. No subscriptions. Your data never leaves your machine.**
+**A self-hosted Telegram bot that writes and sends professional internship and job application emails — powered by local AI. No cloud. No subscriptions. Your data never leaves your machine.**
 
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue?style=flat-square&logo=python)](https://python.org)
 [![Ollama](https://img.shields.io/badge/AI-Ollama%20Local-black?style=flat-square)](https://ollama.ai)
