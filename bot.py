@@ -72,10 +72,6 @@ def _cleanup_lock() -> None:
             pass
 
 
-_acquire_lock()
-atexit.register(_cleanup_lock)
-
-
 async def post_init(app):
     global _scheduler_task
     await db.init_db()
@@ -103,6 +99,9 @@ async def post_shutdown(app):
 
 
 def main():
+    _acquire_lock()
+    atexit.register(_cleanup_lock)
+
     app = (
         ApplicationBuilder()
         .token(TELEGRAM_TOKEN)
