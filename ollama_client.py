@@ -34,7 +34,7 @@ STRICT RULES:
     Do NOT write phrases like "aligning with your requirements" or "crucial for your role" unless a real job posting was provided."""
 
 FALLBACK = {
-    "subject": "Job / Internship Application – CV Attached",
+    "subject": "Job / Internship Application - CV Attached",
     "body": (
         "I am a university student actively seeking a job or internship opportunity "
         "where I can apply my academic background in a practical environment and "
