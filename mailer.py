@@ -50,6 +50,9 @@ def send_email(
 
     logger.info('Sending email to %s via %s:%s', recipient, SMTP_HOST, SMTP_PORT)
 
+    if SMTP_USE_AUTH and not SMTP_USE_TLS:
+        logger.warning('SMTP_USE_AUTH is True but SMTP_USE_TLS is False — credentials will be sent in plaintext')
+
     with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=30) as server:
         server.ehlo()
         if SMTP_USE_TLS:

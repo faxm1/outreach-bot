@@ -1,5 +1,6 @@
 # scheduler.py
 import asyncio
+import functools
 import logging
 from datetime import datetime, timedelta, timezone
 
@@ -51,12 +52,14 @@ def compute_next_send_time(from_dt_utc: datetime) -> datetime:
 
 
 async def process_due_sends(app):
+    now_utc = datetime.now(timezone.utc)
+    if not is_in_window(now_utc):
+        return
+
     rows = await db.get_pending_sends(limit=5)
     for row in rows:
         request_id = row['request_id']
         email = row['recipient_email']
-
-        await db.set_request_status(request_id, db.STATUS_SENDING)
 
         suppressed = await db.is_suppressed(email)
         if suppressed:
@@ -72,14 +75,16 @@ async def process_due_sends(app):
 
         rate = await db.check_rate_limits()
         if not rate['allowed']:
-            new_time = (datetime.utcnow() + timedelta(minutes=RATE_LIMIT_REQUEUE_MINUTES)).isoformat()
+            requeue_utc = datetime.now(timezone.utc) + timedelta(minutes=RATE_LIMIT_REQUEUE_MINUTES)
+            new_time = compute_next_send_time(requeue_utc).isoformat()
             await db.set_request_status(request_id, db.STATUS_CONFIRMED, scheduled_send_time=new_time)
             logger.info('Rate limit hit; rescheduled %s to %s', request_id, new_time)
             continue
 
+        await db.set_request_status(request_id, db.STATUS_SENDING)
+
         try:
-            loop = asyncio.get_event_loop()
-            await loop.run_in_executor(
+            await asyncio.get_event_loop().run_in_executor(
                 None,
                 functools.partial(
                     send_email,
@@ -90,13 +95,8 @@ async def process_due_sends(app):
                     cv_filename=row['cv_filename'],
                     sender_name=SENDER_NAME,
                     sender_email=SENDER_EMAIL,
-                )
+                ),
             )
-            await db.record_attempt(request_id, 'success')
-            await db.record_successful_send(request_id, email)
-            await notify_sent(app.bot, row)
-            logger.info('Sent successfully: %s -> %s', request_id, email)
-
         except Exception as exc:
             error_info = classify_smtp_error(exc)
             await db.record_attempt(
@@ -123,10 +123,17 @@ async def process_due_sends(app):
                 continue
 
             backoff_m = RETRY_BACKOFF[min(attempts - 1, len(RETRY_BACKOFF) - 1)]
-            reschedule = (datetime.utcnow() + timedelta(minutes=backoff_m)).isoformat()
+            retry_utc = datetime.now(timezone.utc) + timedelta(minutes=backoff_m)
+            reschedule = compute_next_send_time(retry_utc).isoformat()
             await db.set_request_status(request_id, db.STATUS_CONFIRMED, scheduled_send_time=reschedule)
             await notify_failure(app.bot, row, error_info, final=False, retry_in_minutes=backoff_m)
             logger.warning('Transient failure %s, retry in %sm (%s)', request_id, backoff_m, error_info['category'])
+            continue
+
+        await db.record_attempt(request_id, 'success')
+        await db.record_successful_send(request_id, email)
+        await notify_sent(app.bot, row)
+        logger.info('Sent successfully: %s -> %s', request_id, email)
 
 
 async def scheduler_loop(app):

@@ -5,6 +5,8 @@ import logging
 import os
 import sys
 
+import psutil
+
 if sys.platform == 'win32':
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
@@ -37,11 +39,7 @@ _LOCK_FILE = 'bot.lock'
 
 
 def _pid_is_running(pid: int) -> bool:
-    try:
-        os.kill(pid, 0)
-    except OSError:
-        return False
-    return True
+    return psutil.pid_exists(pid)
 
 
 def _acquire_lock() -> None:

@@ -244,7 +244,12 @@ async def cancel_request(request_id: str):
         await db_conn.commit()
 
 
+_ALLOWED_EXTRA_FIELDS = frozenset({'scheduled_send_time'})
+
 async def set_request_status(request_id: str, status: str, **extra_fields):
+    unknown = set(extra_fields) - _ALLOWED_EXTRA_FIELDS
+    if unknown:
+        raise ValueError(f'set_request_status: unknown field(s): {unknown}')
     now = datetime.utcnow().isoformat()
     fields = {'status': status, 'updated_at': now, **extra_fields}
     if 'scheduled_send_time' in fields:

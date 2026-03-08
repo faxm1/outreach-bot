@@ -1,4 +1,5 @@
 # ollama_client.py
+import asyncio
 import json
 import logging
 import urllib.request
@@ -92,8 +93,8 @@ def load_cv_text() -> str:
     except FileNotFoundError:
         logger.error(f"CV file not found: {CV_PDF_PATH}")
         return ""
-    except Exception as e:
-        logger.error(f"Failed to read CV: {e}")
+    except Exception:
+        logger.exception("Failed to read CV")
         return ""
 
 
@@ -206,10 +207,12 @@ async def generate_email(recipient_email: str, company_name: str = None) -> dict
     )
 
     try:
-        with urllib.request.urlopen(req, timeout=90) as resp:
-            raw     = json.loads(resp.read().decode("utf-8"))
-            content = raw["message"]["content"].strip()
-            return _parse_model_output(content)
+        def _call():
+            with urllib.request.urlopen(req, timeout=90) as resp:
+                return json.loads(resp.read().decode("utf-8"))
+        raw     = await asyncio.to_thread(_call)
+        content = raw["message"]["content"].strip()
+        return _parse_model_output(content)
 
     except Exception as e:
         logger.warning(f"Ollama generation failed ({e}), using fallback template")
@@ -275,10 +278,12 @@ async def generate_email_from_posting(
     )
 
     try:
-        with urllib.request.urlopen(req, timeout=90) as resp:
-            raw     = json.loads(resp.read().decode("utf-8"))
-            content = raw["message"]["content"].strip()
-            return _parse_model_output(content)
+        def _call():
+            with urllib.request.urlopen(req, timeout=90) as resp:
+                return json.loads(resp.read().decode("utf-8"))
+        raw     = await asyncio.to_thread(_call)
+        content = raw["message"]["content"].strip()
+        return _parse_model_output(content)
 
     except Exception as e:
         logger.warning(f"Ollama posting-generation failed ({e}), using fallback template")

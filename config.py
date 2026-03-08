@@ -12,6 +12,15 @@ def _require(name: str) -> str:
     return value
 
 
+def _require_int(name: str) -> int:
+    value = _require(name)
+    try:
+        return int(value)
+    except ValueError:
+        print(f"ERROR: Required env var '{name}' must be an integer, got: {value!r}")
+        sys.exit(1)
+
+
 def _int(name: str, default: int) -> int:
     raw = os.getenv(name, '').strip()
     if not raw:
@@ -52,7 +61,7 @@ def _csv_ints(name: str, default: list[int]) -> list[int]:
 
 # Telegram
 TELEGRAM_TOKEN = _require('TELEGRAM_TOKEN')
-TELEGRAM_ALLOWED_CHAT_ID = int(_require('TELEGRAM_ALLOWED_CHAT_ID'))
+TELEGRAM_ALLOWED_CHAT_ID = _require_int('TELEGRAM_ALLOWED_CHAT_ID')
 
 # Sender identity
 SENDER_NAME = _require('SENDER_NAME')

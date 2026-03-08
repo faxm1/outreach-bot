@@ -1,7 +1,7 @@
 # handlers.py
 import logging
 import re
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 import pytz
@@ -201,12 +201,12 @@ async def handle_yes(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text('❓ No pending request found to confirm\\.', parse_mode='MarkdownV2')
         return
 
-    now_utc = datetime.utcnow()
+    now_utc = datetime.now(timezone.utc)
     scheduled = compute_next_send_time(now_utc)
     await db.confirm_request(row['request_id'], scheduled.isoformat())
 
     sched_riyadh = scheduled.replace(tzinfo=pytz.utc).astimezone(RIYADH_TZ)
-    if is_in_window(now_utc.replace(tzinfo=pytz.utc)):
+    if is_in_window(now_utc):
         msg = f"✅ Confirmed\\. Sending shortly to `{esc(row['recipient_email'])}`\\."
     else:
         day = esc(sched_riyadh.strftime('%A %d %b %Y at %H:%M'))
